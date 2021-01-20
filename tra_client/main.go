@@ -50,9 +50,9 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.Nodes(ctx, &pb.TraRequest{fqdn: fqdn})
+	r, err := c.Nodes(ctx, &pb.TraRequest{Fqdn: fqdn})
 	if err != nil {
 		log.Fatalf("could not query node : %v", err)
 	}
-	log.Printf("get node: %s %v", r.GetFqdn(), r.GetNodes())
+	log.Printf("get node: %v", r)
 }
