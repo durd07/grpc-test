@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option go_package = "github.com/durd07/grpc-test/tra";
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.tra";
+option java_outer_classname = "TraProto";
+
+package tra;
+
+service Tra {
+	rpc nodes(TraRequest) returns (TraResponse) {}
+}
+
+message TraRequest {
+	string fqdn = 1;
+}
+
+message TraResponse {
+	string fqdn = 1;
+	repeated Node nodes = 2;
+}
+
+message Node {
+	string node_id = 1;
+	string ip = 2;
+	string sip_port = 3;
+	string weight = 4;
+}
