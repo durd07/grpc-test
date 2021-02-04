@@ -14,86 +14,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// TraClient is the client API for Tra service.
+// TraServiceClient is the client API for TraService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TraClient interface {
+type TraServiceClient interface {
 	Nodes(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (*TraResponse, error)
 }
 
-type traClient struct {
+type traServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTraClient(cc grpc.ClientConnInterface) TraClient {
-	return &traClient{cc}
+func NewTraServiceClient(cc grpc.ClientConnInterface) TraServiceClient {
+	return &traServiceClient{cc}
 }
 
-func (c *traClient) Nodes(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (*TraResponse, error) {
+func (c *traServiceClient) Nodes(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (*TraResponse, error) {
 	out := new(TraResponse)
-	err := c.cc.Invoke(ctx, "/tra.Tra/nodes", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/envoy.extensions.filters.network.sip_proxy.v3.TraService/nodes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TraServer is the server API for Tra service.
-// All implementations must embed UnimplementedTraServer
+// TraServiceServer is the server API for TraService service.
+// All implementations must embed UnimplementedTraServiceServer
 // for forward compatibility
-type TraServer interface {
+type TraServiceServer interface {
 	Nodes(context.Context, *TraRequest) (*TraResponse, error)
-	mustEmbedUnimplementedTraServer()
+	mustEmbedUnimplementedTraServiceServer()
 }
 
-// UnimplementedTraServer must be embedded to have forward compatible implementations.
-type UnimplementedTraServer struct {
+// UnimplementedTraServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedTraServiceServer struct {
 }
 
-func (UnimplementedTraServer) Nodes(context.Context, *TraRequest) (*TraResponse, error) {
+func (UnimplementedTraServiceServer) Nodes(context.Context, *TraRequest) (*TraResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Nodes not implemented")
 }
-func (UnimplementedTraServer) mustEmbedUnimplementedTraServer() {}
+func (UnimplementedTraServiceServer) mustEmbedUnimplementedTraServiceServer() {}
 
-// UnsafeTraServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TraServer will
+// UnsafeTraServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TraServiceServer will
 // result in compilation errors.
-type UnsafeTraServer interface {
-	mustEmbedUnimplementedTraServer()
+type UnsafeTraServiceServer interface {
+	mustEmbedUnimplementedTraServiceServer()
 }
 
-func RegisterTraServer(s grpc.ServiceRegistrar, srv TraServer) {
-	s.RegisterService(&Tra_ServiceDesc, srv)
+func RegisterTraServiceServer(s grpc.ServiceRegistrar, srv TraServiceServer) {
+	s.RegisterService(&TraService_ServiceDesc, srv)
 }
 
-func _Tra_Nodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TraService_Nodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TraRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TraServer).Nodes(ctx, in)
+		return srv.(TraServiceServer).Nodes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/tra.Tra/nodes",
+		FullMethod: "/envoy.extensions.filters.network.sip_proxy.v3.TraService/nodes",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TraServer).Nodes(ctx, req.(*TraRequest))
+		return srv.(TraServiceServer).Nodes(ctx, req.(*TraRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Tra_ServiceDesc is the grpc.ServiceDesc for Tra service.
+// TraService_ServiceDesc is the grpc.ServiceDesc for TraService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Tra_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tra.Tra",
-	HandlerType: (*TraServer)(nil),
+var TraService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "envoy.extensions.filters.network.sip_proxy.v3.TraService",
+	HandlerType: (*TraServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "nodes",
-			Handler:    _Tra_Nodes_Handler,
+			Handler:    _TraService_Nodes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
