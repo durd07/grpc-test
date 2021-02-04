@@ -5,9 +5,9 @@ option java_multiple_files = true;
 option java_package = "io.grpc.examples.tra";
 option java_outer_classname = "TraProto";
 
-package tra;
+package envoy.extensions.filters.network.sip_proxy.v3;
 
-service Tra {
+service TraService {
 	rpc nodes(TraRequest) returns (TraResponse) {}
 }
 
