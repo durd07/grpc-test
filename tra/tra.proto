@@ -23,6 +23,6 @@ message TraResponse {
 message Node {
 	string node_id = 1;
 	string ip = 2;
-	int32 sip_port = 3;
-	int32 weight = 4;
+	uint32 sip_port = 3;
+	uint32 weight = 4;
 }
