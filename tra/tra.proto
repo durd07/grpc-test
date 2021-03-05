@@ -9,6 +9,7 @@ package envoy.extensions.filters.network.sip_proxy.v3;
 
 service TraService {
 	rpc nodes(TraRequest) returns (TraResponse) {}
+	rpc subscribe(TraRequest) returns (stream TraResponse) {}
 }
 
 message TraRequest {

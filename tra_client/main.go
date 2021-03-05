@@ -25,14 +25,52 @@ import (
 	"os"
 	"time"
 
-	"google.golang.org/grpc"
 	pb "github.com/durd07/grpc-test/tra"
+	"google.golang.org/grpc"
 )
 
 const (
-	address     = "localhost:50051"
-	defaultFqdn = "tafe.default.cluster.local"
+	address     = "felixdu.hz.dynamic.nsn-net.net:50053"
+	defaultFqdn = "tafe.default.svc.cluster.local"
 )
+
+//func main() {
+//	// Set up a connection to the server.
+//	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+//	if err != nil {
+//		log.Fatalf("did not connect: %v", err)
+//	}
+//	defer conn.Close()
+//	c := pb.NewTraServiceClient(conn)
+//
+//	// Contact the server and print out its response.
+//	fqdn := defaultFqdn
+//	if len(os.Args) > 1 {
+//		fqdn = os.Args[1]
+//	}
+//	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+//	defer cancel()
+//	r, err := c.Nodes(ctx, &pb.TraRequest{Fqdn: fqdn})
+//	if err != nil {
+//		log.Fatalf("could not query node : %v", err)
+//	}
+//	log.Printf("get node: %v", r)
+//}
+
+func recvNotification(stream pb.TraService_SubscribeClient) {
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			log.Fatalf("failed to recv %v", err)
+		}
+
+		if err == io.EOF {
+			break
+		}
+
+		log.Println(resp, err)
+	}
+}
 
 func main() {
 	// Set up a connection to the server.
@@ -50,9 +88,12 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.Nodes(ctx, &pb.TraRequest{Fqdn: fqdn})
+
+	stream, err := c.Subscribe(&pb.TraRequest{Fqdn: fqdn})
 	if err != nil {
 		log.Fatalf("could not query node : %v", err)
 	}
-	log.Printf("get node: %v", r)
+
+	recvNotification(stream)
+	stream.CloseSend()
 }

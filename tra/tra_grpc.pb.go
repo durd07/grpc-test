@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TraServiceClient interface {
 	Nodes(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (*TraResponse, error)
+	Subscribe(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (TraService_SubscribeClient, error)
 }
 
 type traServiceClient struct {
@@ -38,11 +39,44 @@ func (c *traServiceClient) Nodes(ctx context.Context, in *TraRequest, opts ...gr
 	return out, nil
 }
 
+func (c *traServiceClient) Subscribe(ctx context.Context, in *TraRequest, opts ...grpc.CallOption) (TraService_SubscribeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TraService_ServiceDesc.Streams[0], "/envoy.extensions.filters.network.sip_proxy.v3.TraService/subscribe", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &traServiceSubscribeClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type TraService_SubscribeClient interface {
+	Recv() (*TraResponse, error)
+	grpc.ClientStream
+}
+
+type traServiceSubscribeClient struct {
+	grpc.ClientStream
+}
+
+func (x *traServiceSubscribeClient) Recv() (*TraResponse, error) {
+	m := new(TraResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // TraServiceServer is the server API for TraService service.
 // All implementations must embed UnimplementedTraServiceServer
 // for forward compatibility
 type TraServiceServer interface {
 	Nodes(context.Context, *TraRequest) (*TraResponse, error)
+	Subscribe(*TraRequest, TraService_SubscribeServer) error
 	mustEmbedUnimplementedTraServiceServer()
 }
 
@@ -52,6 +86,9 @@ type UnimplementedTraServiceServer struct {
 
 func (UnimplementedTraServiceServer) Nodes(context.Context, *TraRequest) (*TraResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Nodes not implemented")
+}
+func (UnimplementedTraServiceServer) Subscribe(*TraRequest, TraService_SubscribeServer) error {
+	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
 }
 func (UnimplementedTraServiceServer) mustEmbedUnimplementedTraServiceServer() {}
 
@@ -84,6 +121,27 @@ func _TraService_Nodes_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TraService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(TraRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TraServiceServer).Subscribe(m, &traServiceSubscribeServer{stream})
+}
+
+type TraService_SubscribeServer interface {
+	Send(*TraResponse) error
+	grpc.ServerStream
+}
+
+type traServiceSubscribeServer struct {
+	grpc.ServerStream
+}
+
+func (x *traServiceSubscribeServer) Send(m *TraResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // TraService_ServiceDesc is the grpc.ServiceDesc for TraService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -96,6 +154,12 @@ var TraService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TraService_Nodes_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "subscribe",
+			Handler:       _TraService_Subscribe_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "tra/tra.proto",
 }
