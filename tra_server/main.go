@@ -68,7 +68,7 @@ func (s *endpointAction) add(obj interface{}) {
 	}
 
 	for _, address := range endpoints.Subsets[0].Addresses {
-		data[fqdn].Nodes = append(data[fqdn].Nodes, &pb.Node{NodeId: address.IP, Ip: address.IP, SipPort: uint32(endpoints.Subsets[0].Ports[0].Port), Weight: 20})
+		data[fqdn].Nodes = append(data[fqdn].Nodes, &pb.Node{NodeId: address.IP, Ip: address.IP, SipPort: uint32(endpoints.Subsets[0].Ports[0].Port), Weight: 1})
 	}
 }
 
@@ -145,9 +145,11 @@ func watch() {
 			change_chan <- struct{}{}
 		} else {
 			log.Printf("Endpoint watch unhandled event: %v", event.Type)
+			break
 		}
+
 		if !ok {
-			log.Printf("panic here")
+			log.Printf("should panic here")
 		}
 	}
 }
