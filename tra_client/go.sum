@@ -11,6 +11,8 @@ github.com/durd07/grpc-test v0.0.1 h1:SvcH1RUV1nzhAbgND/jur+aA5aGo7nTOupMw6Xunxr
 github.com/durd07/grpc-test v0.0.1/go.mod h1:ZxL8GWilGkLvMMx+TJhf8nkv+PkoGunYHtnXYvwqPwo=
 github.com/durd07/grpc-test v0.0.2 h1:ulMt6NxoSMNZUc6Z9+SCZIoNDHyLjSd7hBd7xY4VsXE=
 github.com/durd07/grpc-test v0.0.2/go.mod h1:ZxL8GWilGkLvMMx+TJhf8nkv+PkoGunYHtnXYvwqPwo=
+github.com/durd07/grpc-test v0.0.4 h1:QoTh8/0eFXrox+QMXRKqeViqlOM0emmm2PHWudp3YtA=
+github.com/durd07/grpc-test v0.0.4/go.mod h1:ZxL8GWilGkLvMMx+TJhf8nkv+PkoGunYHtnXYvwqPwo=
 github.com/durd07/grpc-test v1.0.0 h1:TSxn8DjrhJOe3T1TPkIk8U5AQuZ1bAPQNcaiZPxyEwk=
 github.com/durd07/grpc-test v1.0.0/go.mod h1:ZxL8GWilGkLvMMx+TJhf8nkv+PkoGunYHtnXYvwqPwo=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=

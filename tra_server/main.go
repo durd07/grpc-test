@@ -44,7 +44,7 @@ const (
 )
 
 var (
-	streamCache map[string] map[pb.TraService_SubscribeServer]struct{}
+	streamCache = make(map[string] map[pb.TraService_SubscribeServer]struct{})
 )
 
 type watchInterface interface {
@@ -147,7 +147,7 @@ func watch() {
 			log.Printf("Endpoint watch unhandled event: %v", event.Type)
 		}
 		if !ok {
-			panic("panic here")
+			log.Printf("panic here")
 		}
 	}
 }
@@ -214,24 +214,40 @@ func (s *server) Nodes(ctx context.Context, in *pb.TraRequest) (*pb.TraResponse,
 }
 
 func (s *server) Subscribe(in *pb.TraRequest, stream pb.TraService_SubscribeServer) error {
-	log.Printf("Received: %v", in.Fqdn)
+	log.Printf("Received Subscribe: %v", in.Fqdn)
 
 	if _, ok := streamCache[in.Fqdn]; !ok {
-		memember := make(map[stream] struct{})
+		memember := make(map[pb.TraService_SubscribeServer] struct{})
 		memember[stream] = struct{}{}
+		streamCache[in.Fqdn] = memember
 	} else {
 		streamCache[in.Fqdn][stream] = struct{}{}
+	}
+
+	change_chan <- struct{}{}
+	for {
+		if err := stream.Context().Err(); err != nil {
+			delete(streamCache[in.Fqdn], stream)
+			break
+		}
 	}
 	return nil
 }
 
 var change_chan = make(chan struct{})
+
 func (s *server) Notify() error {
 	for {
 		_ = <-change_chan
+		log.Printf("XXXXXX do notify %v\n", streamCache)
 		for k, stream_list := range streamCache {
 			for stream, _ := range stream_list {
+				if err := stream.Context().Err(); err != nil {
+					delete(streamCache[k], stream)
+					continue
+				}
 				stream.Send(data[k])
+				log.Printf("send to %+v\n", stream)
 			}
 		}
 	}

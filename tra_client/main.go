@@ -23,6 +23,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"io"
 	"time"
 
 	pb "github.com/durd07/grpc-test/tra"
@@ -31,7 +32,7 @@ import (
 
 const (
 	address     = "felixdu.hz.dynamic.nsn-net.net:50053"
-	defaultFqdn = "tafe.default.svc.cluster.local"
+	defaultFqdn = "sips.default.svc.cluster.local"
 )
 
 //func main() {
@@ -60,12 +61,13 @@ const (
 func recvNotification(stream pb.TraService_SubscribeClient) {
 	for {
 		resp, err := stream.Recv()
-		if err != nil {
-			log.Fatalf("failed to recv %v", err)
+		if err == io.EOF {
+			log.Fatalf("EOF error ", err)
+			break
 		}
 
-		if err == io.EOF {
-			break
+		if err != nil {
+			log.Fatalf("failed to recv %v", err)
 		}
 
 		log.Println(resp, err)
@@ -86,10 +88,10 @@ func main() {
 	if len(os.Args) > 1 {
 		fqdn = os.Args[1]
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*100000)
 	defer cancel()
 
-	stream, err := c.Subscribe(&pb.TraRequest{Fqdn: fqdn})
+	stream, err := c.Subscribe(ctx, &pb.TraRequest{Fqdn: fqdn})
 	if err != nil {
 		log.Fatalf("could not query node : %v", err)
 	}
