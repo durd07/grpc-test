@@ -367,6 +367,7 @@ func (s *server) Subscribe(in *pb.TraRequest, stream pb.TraService_SubscribeServ
 			delete(streamCache[in.Fqdn], stream)
 			break
 		}
+		time.Sleep(time.Second)
 	}
 	return nil
 }
